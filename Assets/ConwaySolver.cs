@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using DefaultNamespace;
@@ -10,6 +9,8 @@ public class ConwaySolver : MonoBehaviour
 	/*
 	 * Project start time = 14:35 Lisbon time
 	 * Algorithm completed time = 15:30 Lisbon time
+	 * Fixes completed time = 16:40 Lisbon time
+	 * End time = 17:27 Lisbon time
 	 *
 	 * Rule:
 	 * Imagine a 2D grid, each cell (coordinate) can be “alive” or “dead”.
@@ -26,7 +27,7 @@ public class ConwaySolver : MonoBehaviour
 
 	private const string _inputTextFileAddress = "input.txt";
 	private const string _outputTextFileAddress = "output.txt";
-	private const int _generationCount = 10;
+	private const int _generationCount = 1;
 
 	private readonly List64<Tuple<long, long>> _aliveCandidateCells = new();
 	private readonly List64<int> _aliveCandidateCellAliveNeighbourCount = new();
@@ -102,7 +103,7 @@ public class ConwaySolver : MonoBehaviour
 	#region Utils
 	private int GetAliveNeighbourCountsOfCell(Tuple<long, long> cellCoordinates)
 	{
-		int neighbourCount = 0;
+		int aliveNeighbourCount = 0;
 
 		foreach (var iteratingRelativeNeighbourCoordinate in _relativeNeighbourCoordinates)
 		{
@@ -112,7 +113,19 @@ public class ConwaySolver : MonoBehaviour
 
 				if (_aliveCells.Contains(neighbourCellCoordinates))
 				{
-					neighbourCount++;
+					aliveNeighbourCount++;
+				}
+				else
+				{
+					if (!_aliveCandidateCells.Contains(neighbourCellCoordinates))
+					{
+						_aliveCandidateCells.Add(neighbourCellCoordinates);
+						_aliveCandidateCellAliveNeighbourCount.Add(1);
+					}
+					else
+					{
+						_aliveCandidateCellAliveNeighbourCount.SetElementAt(_aliveCandidateCells.GetIndexOf(neighbourCellCoordinates, TupleCompareFunction), _aliveCandidateCellAliveNeighbourCount.GetElementAt(_aliveCandidateCells.GetIndexOf(neighbourCellCoordinates, TupleCompareFunction)) + 1);
+					}
 				}
 			}
 			catch (Exception e)
@@ -121,7 +134,12 @@ public class ConwaySolver : MonoBehaviour
 			}
 		}
 
-		return neighbourCount;
+		return aliveNeighbourCount;
+	}
+
+	private bool TupleCompareFunction(Tuple<long, long> lhs, Tuple<long, long> rhs)
+	{
+		return lhs.Item1 == rhs.Item1 && lhs.Item2 == rhs.Item2;
 	}
 
 	private void LoadInputCells()

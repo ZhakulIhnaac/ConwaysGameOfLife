@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace DefaultNamespace
 {
@@ -69,6 +70,45 @@ namespace DefaultNamespace
 			}
 
 			return false;
+		}
+
+		public T GetElementAt((int, int) index)
+		{
+			if (_listOfLists.Count < index.Item1 && _listOfLists[index.Item1].Count < index.Item2)
+			{
+				return _listOfLists[index.Item1][index.Item2];
+			}
+			
+			throw new IndexOutOfRangeException();
+		}
+
+		public void SetElementAt((int,int) index, T newValue)
+		{
+			if (_listOfLists.Count < index.Item1 && _listOfLists[index.Item1].Count < index.Item2)
+			{
+				_listOfLists[index.Item1][index.Item2] = newValue;
+				return;
+			}
+
+			throw new IndexOutOfRangeException();
+		}
+
+		public (int, int) GetIndexOf(T elementToCheck, Func<T, T, bool> compareFunc)
+		{
+			for (int i = 0; i < _listOfLists.Count; i++)
+			{
+				var iteratingList = _listOfLists[i];
+				
+				for (int j = 0; j < iteratingList.Count; j++)
+				{
+					if (compareFunc(elementToCheck, iteratingList[j]))
+					{
+						return (i, j);
+					}	
+				}
+			}
+
+			return (-1, -1);
 		}
 		
 		public void Clear() => _listOfLists.Clear();
