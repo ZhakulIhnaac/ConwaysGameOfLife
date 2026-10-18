@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using DefaultNamespace;
 using UnityEngine;
 
 public class ConwaySolver : MonoBehaviour
@@ -28,7 +29,7 @@ public class ConwaySolver : MonoBehaviour
 	private const int _generationCount = 10;
 
 	private readonly Dictionary<Tuple<long, long>, int> _aliveCandidateCells = new();
-	private readonly List<Tuple<long, long>> _cellsToSetDead = new();
+	private readonly List64<Tuple<long, long>> _cellsToSetDead = new();
 	private readonly StringBuilder _outputText = new();
 	private readonly Tuple<long, long>[] _relativeNeighbourCoordinates =
 	{
@@ -42,7 +43,7 @@ public class ConwaySolver : MonoBehaviour
 		new(0, -1)
 	};
 
-	private List<Tuple<long, long>> _aliveCells;
+	private List64<Tuple<long, long>> _aliveCells;
 	
 	private void Update()
 	{
@@ -70,7 +71,8 @@ public class ConwaySolver : MonoBehaviour
 	private void IterateTheGameToTheNextGeneration()
 	{
 		_aliveCandidateCells.Clear();
-
+		_cellsToSetDead.Clear();
+		
 		foreach (var iteratingAliveCell in _aliveCells)
 		{
 			var aliveNeighbourCounts = GetAliveNeighbourCountsOfCell(iteratingAliveCell);
@@ -81,11 +83,8 @@ public class ConwaySolver : MonoBehaviour
 			}
 		}
 
-		for (long i = 0; i < _cellsToSetDead.Count; i++)
-		{
-			_aliveCells.Remove(_cellsToSetDead[i]);
-		}
-
+		_aliveCells.Remove(_cellsToSetDead);
+		
 		foreach (var iteratingAliveCandidateCell in _aliveCandidateCells)
 		{
 			if (iteratingAliveCandidateCell.Value is 3)
@@ -125,7 +124,7 @@ public class ConwaySolver : MonoBehaviour
 		string word = File.ReadAllText($"{Application.dataPath}/{_inputTextFileAddress}");
 		string[] words = word.Split('\n');
 
-		_aliveCells = new List<Tuple<long, long>>(Mathf.NextPowerOfTwo(words.Length - 1));
+		_aliveCells = new List64<Tuple<long, long>>();
 
 		// Starting from the second line since the first line is the term "#Life 1.06"
 		for (long i = 1; i < words.Length; i++)
