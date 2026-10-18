@@ -28,7 +28,8 @@ public class ConwaySolver : MonoBehaviour
 	private const string _outputTextFileAddress = "output.txt";
 	private const int _generationCount = 10;
 
-	private readonly Dictionary<Tuple<long, long>, int> _aliveCandidateCells = new();
+	private readonly List64<Tuple<long, long>> _aliveCandidateCells = new();
+	private readonly List64<int> _aliveCandidateCellAliveNeighbourCount = new();
 	private readonly List64<Tuple<long, long>> _cellsToSetDead = new();
 	private readonly StringBuilder _outputText = new();
 	private readonly Tuple<long, long>[] _relativeNeighbourCoordinates =
@@ -71,6 +72,7 @@ public class ConwaySolver : MonoBehaviour
 	private void IterateTheGameToTheNextGeneration()
 	{
 		_aliveCandidateCells.Clear();
+		_aliveCandidateCellAliveNeighbourCount.Clear();
 		_cellsToSetDead.Clear();
 		
 		foreach (var iteratingAliveCell in _aliveCells)
@@ -84,13 +86,16 @@ public class ConwaySolver : MonoBehaviour
 		}
 
 		_aliveCells.Remove(_cellsToSetDead);
-		
-		foreach (var iteratingAliveCandidateCell in _aliveCandidateCells)
+
+		while (!_aliveCandidateCells.IsEmpty)
 		{
-			if (iteratingAliveCandidateCell.Value is 3)
+			if (_aliveCandidateCellAliveNeighbourCount.LastElement is 3)
 			{
-				_aliveCells.Add(iteratingAliveCandidateCell.Key);
+				_aliveCells.Add(_aliveCandidateCells.LastElement);
 			}
+
+			_aliveCandidateCells.RemoveLastElement();
+			_aliveCandidateCellAliveNeighbourCount.RemoveLastElement();
 		}
 	}
 

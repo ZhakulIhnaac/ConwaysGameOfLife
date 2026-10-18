@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,10 +7,11 @@ namespace DefaultNamespace
 {
 	public class List64<T> : IEnumerable<T>
 	{
-//		public long Count => _listOfLists.Sum(iteratingList => iteratingList.Count);
-		
-		private readonly List<List<T>> _listOfLists = new();
+		public bool IsEmpty => _listOfLists.Count == 0;
 
+		private readonly List<List<T>> _listOfLists = new();
+		public T LastElement => IsEmpty ? default : _listOfLists[^1][_listOfLists[^1].Count - 1];
+		
 		public void Add(T value)
 		{
 			for (int i = 0; i < _listOfLists.Count; i++)
@@ -36,6 +38,7 @@ namespace DefaultNamespace
 				if (_listOfLists[i].Contains(value))
 				{
 					_listOfLists[i].Remove(value);
+					if (_listOfLists[i].Count == 0) _listOfLists.RemoveAt(i);
 					return;
 				}
 			}
@@ -47,6 +50,12 @@ namespace DefaultNamespace
 			{
 				Remove(elementToRemove);
 			}
+		}
+
+		public void RemoveLastElement()
+		{
+			if (IsEmpty) return;
+			Remove(_listOfLists[^1][_listOfLists[^1].Count - 1]);
 		}
 		
 		public bool Contains(T value)
